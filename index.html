@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シンプル動画リンク生成</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f4f8; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .box { background: #fff; padding: 40px 30px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; width: 90%; }
+        h2 { color: #1e3a8a; margin: 0 0 10px 0; font-size: 24px; }
+        p { font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+        input[type="file"] { display: block; width: 100%; margin: 20px 0; padding: 15px; border: 2px dashed #cbd5e1; border-radius: 6px; box-sizing: border-box; background: #f8fafc; cursor: pointer; }
+        button { background: #3b82f6; color: #fff; border: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; transition: background 0.2s; width: 100%; }
+        button:hover { background: #2563eb; }
+        .output { margin-top: 25px; padding: 15px; background: #f1f5f9; border-radius: 6px; display: none; text-align: left; }
+        textarea { width: 100%; height: 60px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 5px; box-sizing: border-box; resize: none; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="box" id="main-ui">
+    <h2>シンプル動画リンク生成</h2>
+    <p>動画ファイルを選択して、Discordなどに貼れるリンクを作ります。</p>
+    <input type="file" id="v" accept="video/*">
+    <button onclick="makeLink()">リンクを生成</button>
+
+    <div class="output" id="out">
+        <span style="font-weight:bold; color:#2563eb;">✨ リンクが完成しました！</span><br>
+        <p style="margin:5px 0; font-size:12px; color:#666;">このURLをコピーしてDiscordに貼り付けてください：</p>
+        <textarea id="result-url" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    // ページが開かれたとき、URLに動画データが含まれていたらプレイヤーに変身する
+    window.onload = function() {
+        if (window.location.hash) {
+            const data = window.location.hash.substring(1);
+            document.body.innerHTML = `
+                <style>
+                    body,html { margin:0; padding:0; width:100%; height:100%; background:#000; overflow:hidden; display:flex; justify-content:center; align-items:center; }
+                    video { width:100%; height:100%; object-fit:contain; }
+                </style>
+                <video autoplay loop muted controls playsinline src="${data}"></video>
+            `;
+        }
+    }
+
+    // 動画をURLに埋め込む処理
+    function makeLink() {
+        const file = document.getElementById('v').files[0];
+        if (!file) { alert('動画ファイルを選んでください！'); return; }
+
+        // 軽い動画用（数秒程度）にBase64に変換してURLを作る
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const baseUrl = window.location.href.split('#')[0];
+            const finalUrl = baseUrl + '#' + e.target.result;
+            
+            document.getElementById('result-url').value = finalUrl;
+            document.getElementById('out').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+
+</body>
+</html>
